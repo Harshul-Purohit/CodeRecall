@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { RefreshCw, CheckCircle2 } from 'lucide-react';
+import { Logo } from './Logo';
 
 interface NavbarProps {
   onSyncComplete?: () => void;
@@ -23,14 +24,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onSyncComplete }) => {
   return (
     <header className="w-full bg-[#211832] border-b border-[#5C3E94] py-3 px-8 flex justify-between items-center sticky top-0 z-50">
       {/* Left Brand Group */}
-      <div className="flex items-center">
-        <img
-          src="/CodeRecall_logo.svg"
-          alt="CodeRecall"
-          className="h-6 w-auto mr-2.5"
-        />
-        <span className="text-lg font-bold text-white tracking-tight">
-          CodeRecall
+      <div className="flex items-center gap-1 select-none">
+        <Logo />
+        <span className="text-xl font-bold tracking-tight text-white">
+          Code<span className="text-[#F25912]">Recall</span>
         </span>
       </div>
 
