@@ -17,6 +17,8 @@ import {
 
 export type AttemptType = 'solved_without_help' | 'needed_hints' | 'code_viewed' | null;
 
+export type SupportedLanguage = 'Python' | 'JavaScript' | 'C++' | 'Java';
+
 export interface StructuredHint {
   step: number;
   category: 'Pattern Hook' | 'Invariant State' | 'Edge Case Warning';
@@ -37,14 +39,21 @@ export interface DryRunSample {
   explanation?: string;
 }
 
+export interface SingleLanguageSolution {
+  language: SupportedLanguage;
+  codeLines: string[];
+  lineAnnotations: LineAnnotation[];
+}
+
 export interface CodeSolution {
-  language: string;
+  language: SupportedLanguage;
   timeComplexity: string;
   spaceComplexity: string;
   dryRun: DryRunSample;
   codeLines: string[];
   lineAnnotations: LineAnnotation[];
   explanation: string;
+  languages?: Partial<Record<SupportedLanguage, SingleLanguageSolution>>;
 }
 
 export interface ProblemCardData {
@@ -83,17 +92,30 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({
   onViewSolution,
   keyboardTrigger
 }) => {
-  // Active drawer mode: 'hints' (Col 2), 'code' (Col 3), 'split' (Col 2 & 3 View), or null
-  const [activeDrawer, setActiveDrawer] = useState<'hints' | 'code' | 'split' | null>(null);
+  // Active drawer mode strictly single-view: 'hints' (Col 2), 'code' (Col 3), or null
+  const [activeDrawer, setActiveDrawer] = useState<'hints' | 'code' | null>(null);
   
-  // Progressively revealed hints count (default shows all 3 structured cards)
+  // Selected programming language for code breakdown (default: Python)
+  const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage>(
+    card.codeSolution.language || 'Python'
+  );
+
+  // Progressively revealed hints count (default 3)
   const [revealedHints, setRevealedHints] = useState<number>(3);
   
-  // Visual temporary checkmark indicator state
+  // Temporary visual checkmark indicator state
   const [showCheckmarkToast, setShowCheckmarkToast] = useState<boolean>(false);
   
   // Hovered line for highlighting line annotations
   const [highlightedLine, setHighlightedLine] = useState<number | null>(null);
+
+  // Current active language code solution
+  const currentLangSolution: SingleLanguageSolution = 
+    (card.codeSolution.languages && card.codeSolution.languages[selectedLanguage]) || {
+      language: selectedLanguage,
+      codeLines: card.codeSolution.codeLines,
+      lineAnnotations: card.codeSolution.lineAnnotations
+    };
 
   // Handle keyboard triggers from parent when active card receives shortcut '1', '2', or '3'
   useEffect(() => {
@@ -276,7 +298,7 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({
             <button
               onClick={handleToggleHints}
               className={`px-3 py-1.5 text-xs rounded border transition-all duration-150 flex items-center gap-1.5 focus:outline-none ${
-                activeDrawer === 'hints' || activeDrawer === 'split'
+                activeDrawer === 'hints'
                   ? 'bg-amber-950/80 border-[#EAB308] text-[#EAB308] font-semibold'
                   : 'border-[#5C3E94] text-amber-400 bg-[#211832]/60 hover:bg-[#211832] hover:border-amber-500/60'
               }`}
@@ -294,7 +316,7 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({
             <button
               onClick={handleToggleSolution}
               className={`px-3 py-1.5 text-xs rounded border transition-all duration-150 flex items-center gap-1.5 focus:outline-none ${
-                activeDrawer === 'code' || activeDrawer === 'split'
+                activeDrawer === 'code'
                   ? 'bg-[#211832] border-[#F25912] text-[#F25912] font-semibold'
                   : 'border-[#5C3E94] text-[#B4A7D6] bg-[#211832]/40 hover:border-[#B4A7D6] hover:text-white'
               }`}
@@ -309,7 +331,7 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({
             </button>
           </div>
 
-          {/* SM-2 Telemetry & Keyboard Hint */}
+          {/* SM-2 Telemetry */}
           <div className="flex items-center gap-3 font-mono text-[11px] text-[#B4A7D6]">
             <div>
               SM-2 Interval: <span className="text-white font-semibold">{card.sm2Interval}</span> &nbsp;•&nbsp; EF: <span className="text-white font-semibold">{card.sm2Ef}</span>
@@ -318,7 +340,7 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({
         </div>
       </div>
 
-      {/* ACTIVE RECALL EXPANDABLE DRAWER (3-Column Architecture) */}
+      {/* ACTIVE RECALL EXPANDABLE DRAWER (Full-Width Single View Trays) */}
       {activeDrawer && (
         <div className="bg-[#1A1228] border-t border-[#5C3E94] p-4 sm:p-5 space-y-4 rounded-b-lg">
           {/* Drawer Header & Mode Switcher */}
@@ -329,19 +351,19 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({
                 Active Recall Drawer
               </span>
               <span className="text-xs text-[#B4A7D6] font-mono">
-                / {activeDrawer === 'hints' ? 'Column 2: Stepwise Hints' : activeDrawer === 'code' ? 'Column 3: Solution Breakdown' : 'Split 3-Column View'}
+                / {activeDrawer === 'hints' ? 'Column 2: Stepwise Hints' : 'Column 3: Solution Breakdown'}
               </span>
             </div>
 
-            {/* View Controls & Close */}
-            <div className="flex items-center gap-1.5 flex-wrap">
+            {/* Dedicated View Switcher Tabs & Close Button */}
+            <div className="flex items-center gap-2">
               <div className="flex items-center bg-[#211832] p-0.5 rounded border border-[#5C3E94]">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     setActiveDrawer('hints');
                   }}
-                  className={`px-2.5 py-1 text-[11px] rounded font-mono font-medium transition-colors ${
+                  className={`px-3 py-1 text-[11px] rounded font-mono font-medium transition-colors ${
                     activeDrawer === 'hints'
                       ? 'bg-[#F25912] text-white font-bold'
                       : 'text-[#B4A7D6] hover:text-white'
@@ -355,27 +377,13 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({
                     e.stopPropagation();
                     setActiveDrawer('code');
                   }}
-                  className={`px-2.5 py-1 text-[11px] rounded font-mono font-medium transition-colors ${
+                  className={`px-3 py-1 text-[11px] rounded font-mono font-medium transition-colors ${
                     activeDrawer === 'code'
                       ? 'bg-[#F25912] text-white font-bold'
                       : 'text-[#B4A7D6] hover:text-white'
                   }`}
                 >
-                  Col 3: Breakdown
-                </button>
-
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setActiveDrawer('split');
-                  }}
-                  className={`px-2.5 py-1 text-[11px] rounded font-mono font-medium transition-colors hidden md:block ${
-                    activeDrawer === 'split'
-                      ? 'bg-[#F25912] text-white font-bold'
-                      : 'text-[#B4A7D6] hover:text-white'
-                  }`}
-                >
-                  Split View
+                  Col 3: Solution Breakdown
                 </button>
               </div>
 
@@ -392,12 +400,12 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({
             </div>
           </div>
 
-          {/* DRAWER CONTENT LAYOUT */}
-          <div className={activeDrawer === 'split' ? 'grid grid-cols-1 lg:grid-cols-2 gap-5' : 'space-y-4'}>
+          {/* DRAWER CONTENT LAYOUT: FULL WIDTH SINGLE TRAY */}
+          <div className="w-full">
             
-            {/* COLUMN 2: STEPWISE HINTS BOX */}
-            {(activeDrawer === 'hints' || activeDrawer === 'split') && (
-              <div className="space-y-3">
+            {/* COLUMN 2: STEPWISE HINTS BOX (Full Width) */}
+            {activeDrawer === 'hints' && (
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs font-mono uppercase tracking-wider text-[#EAB308] font-bold flex items-center gap-1.5">
                     <Lightbulb className="w-3.5 h-3.5 text-[#EAB308]" />
@@ -409,28 +417,28 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({
                 </div>
 
                 {/* Structured Hints List */}
-                <div className="space-y-2.5">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
                   {card.hints.slice(0, revealedHints).map((hint, idx) => (
                     <div
                       key={idx}
-                      className="bg-[#211832] border border-[#3B265E] hover:border-[#5C3E94] p-3.5 rounded-md space-y-1.5 transition-all"
+                      className="bg-[#211832] border border-[#3B265E] hover:border-[#5C3E94] p-4 rounded-md space-y-2 transition-all flex flex-col justify-between"
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-bold text-[#F25912] bg-[#F25912]/10 border border-[#F25912]/30 px-1.5 py-0.5 rounded">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-mono text-xs font-bold text-[#F25912] bg-[#F25912]/10 border border-[#F25912]/30 px-2 py-0.5 rounded">
                             Step {hint.step}
                           </span>
-                          <span className="font-mono text-xs font-semibold text-white">
-                            {hint.title}
+                          <span className="text-[10px] font-mono uppercase font-semibold px-2 py-0.5 rounded bg-[#2C1F45] text-purple-300 border border-[#5C3E94]">
+                            {hint.category}
                           </span>
                         </div>
-                        <span className="text-[10px] font-mono uppercase font-semibold px-2 py-0.5 rounded bg-[#2C1F45] text-purple-300 border border-[#5C3E94]">
-                          {hint.category}
-                        </span>
+                        <h5 className="font-mono text-xs font-bold text-white pt-1">
+                          {hint.title}
+                        </h5>
+                        <p className="text-xs text-slate-300 font-sans leading-relaxed pt-1">
+                          {hint.content}
+                        </p>
                       </div>
-                      <p className="text-xs text-slate-300 font-sans leading-relaxed pt-1">
-                        {hint.content}
-                      </p>
                     </div>
                   ))}
                 </div>
@@ -451,12 +459,12 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({
               </div>
             )}
 
-            {/* COLUMN 3: SOLUTION CODE & LINE BREAKDOWN TRAY */}
-            {(activeDrawer === 'code' || activeDrawer === 'split') && (
+            {/* COLUMN 3: SOLUTION CODE & LINE BREAKDOWN TRAY (Full Width with Multi-Language Selector) */}
+            {activeDrawer === 'code' && (
               <div className="space-y-4">
-                {/* Top Bar: Dry Run Preview Box & Complexity Badges */}
-                <div className="bg-[#2C1F45] border border-[#5C3E94] rounded-md p-3.5 space-y-2.5">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                {/* Top Bar: Dry Run Preview Box, Complexity Badges & Language Selector */}
+                <div className="bg-[#2C1F45] border border-[#5C3E94] rounded-md p-4 space-y-3">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
                       <Cpu className="w-4 h-4 text-[#F25912]" />
                       <span className="font-mono text-xs font-bold text-white uppercase tracking-wider">
@@ -464,16 +472,39 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({
                       </span>
                     </div>
 
-                    {/* Time & Space Complexity Badges */}
-                    <div className="flex items-center gap-2">
-                      <span className="bg-[#211832] border border-[#F25912]/50 text-[#F25912] font-mono text-xs px-2.5 py-0.5 rounded font-bold flex items-center gap-1">
-                        <Clock className="w-3 h-3 text-[#F25912]" />
-                        <span>Time: {card.codeSolution.timeComplexity}</span>
-                      </span>
-                      <span className="bg-[#211832] border border-[#22C55E]/50 text-[#22C55E] font-mono text-xs px-2.5 py-0.5 rounded font-bold flex items-center gap-1">
-                        <Layers className="w-3 h-3 text-[#22C55E]" />
-                        <span>Space: {card.codeSolution.spaceComplexity}</span>
-                      </span>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      {/* Language Selector (Segmented Pill Tabs) */}
+                      <div className="flex items-center gap-1 bg-[#211832] p-1 rounded-md border border-[#5C3E94]">
+                        <span className="text-[10px] font-mono uppercase text-[#B4A7D6] px-1.5 font-bold">Lang:</span>
+                        {(['Python', 'JavaScript', 'C++', 'Java'] as SupportedLanguage[]).map((lang) => (
+                          <button
+                            key={lang}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedLanguage(lang);
+                            }}
+                            className={`px-2.5 py-0.5 text-[11px] rounded font-mono font-medium transition-colors ${
+                              selectedLanguage === lang
+                                ? 'bg-[#F25912] text-white font-bold shadow-sm'
+                                : 'text-[#B4A7D6] hover:text-white hover:bg-[#2C1F45]'
+                            }`}
+                          >
+                            {lang}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Time & Space Complexity Badges */}
+                      <div className="flex items-center gap-2">
+                        <span className="bg-[#211832] border border-[#F25912]/50 text-[#F25912] font-mono text-xs px-2.5 py-0.5 rounded font-bold flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-[#F25912]" />
+                          <span>Time: {card.codeSolution.timeComplexity}</span>
+                        </span>
+                        <span className="bg-[#211832] border border-[#22C55E]/50 text-[#22C55E] font-mono text-xs px-2.5 py-0.5 rounded font-bold flex items-center gap-1">
+                          <Layers className="w-3 h-3 text-[#22C55E]" />
+                          <span>Space: {card.codeSolution.spaceComplexity}</span>
+                        </span>
+                      </div>
                     </div>
                   </div>
 
@@ -496,19 +527,19 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({
                 </div>
 
                 {/* Solution Code Display & Inline Line Annotations */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
                   {/* Code Display Area (JetBrains Mono + Clean Line Numbers) */}
                   <div className="lg:col-span-7 bg-[#211832] border border-[#5C3E94] rounded-md overflow-hidden font-mono text-xs">
-                    <div className="bg-[#2C1F45] border-b border-[#5C3E94] px-3 py-1.5 text-[11px] text-[#B4A7D6] font-bold flex items-center justify-between">
-                      <span>{card.codeSolution.language} Solution</span>
+                    <div className="bg-[#2C1F45] border-b border-[#5C3E94] px-3.5 py-2 text-[11px] text-[#B4A7D6] font-bold flex items-center justify-between">
+                      <span className="text-white font-mono">{selectedLanguage} Solution</span>
                       <span className="text-[10px] text-slate-400">JetBrains Mono</span>
                     </div>
-                    <div className="p-3 overflow-x-auto">
+                    <div className="p-3.5 overflow-x-auto">
                       <table className="w-full border-collapse">
                         <tbody>
-                          {card.codeSolution.codeLines.map((lineText, idx) => {
+                          {currentLangSolution.codeLines.map((lineText, idx) => {
                             const lineNum = idx + 1;
-                            const hasAnnotation = card.codeSolution.lineAnnotations.some(
+                            const hasAnnotation = currentLangSolution.lineAnnotations.some(
                               (a) => a.line === lineNum
                             );
                             const isHighlighted = highlightedLine === lineNum;
@@ -520,7 +551,7 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({
                                 onMouseLeave={() => setHighlightedLine(null)}
                                 className={`transition-colors font-mono ${
                                   isHighlighted
-                                    ? 'bg-[#F25912]/20 text-white'
+                                    ? 'bg-[#F25912]/25 text-white font-semibold'
                                     : hasAnnotation
                                     ? 'bg-[#412B6B]/30 hover:bg-[#412B6B]/60'
                                     : 'hover:bg-[#2C1F45]/40'
@@ -541,14 +572,14 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({
                   </div>
 
                   {/* Inline Line Annotations Column */}
-                  <div className="lg:col-span-5 space-y-2">
+                  <div className="lg:col-span-5 space-y-2.5">
                     <h5 className="text-[11px] font-mono uppercase tracking-wider text-[#B4A7D6] font-bold flex items-center gap-1.5 mb-1">
-                      <Code className="w-3 h-3 text-[#F25912]" />
-                      <span>Line-by-Line Breakdown Annotations</span>
+                      <Code className="w-3.5 h-3.5 text-[#F25912]" />
+                      <span>{selectedLanguage} Line-by-Line Annotations</span>
                     </h5>
 
-                    <div className="space-y-2 max-h-[280px] overflow-y-auto pr-1">
-                      {card.codeSolution.lineAnnotations.map((ann, idx) => {
+                    <div className="space-y-2.5 max-h-[320px] overflow-y-auto pr-1">
+                      {currentLangSolution.lineAnnotations.map((ann, idx) => {
                         const isHighlighted = highlightedLine === ann.line;
 
                         return (
@@ -556,7 +587,7 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({
                             key={idx}
                             onMouseEnter={() => setHighlightedLine(ann.line)}
                             onMouseLeave={() => setHighlightedLine(null)}
-                            className={`p-2.5 rounded border transition-all text-xs space-y-1 ${
+                            className={`p-3 rounded border transition-all text-xs space-y-1.5 ${
                               isHighlighted
                                 ? 'bg-[#F25912]/20 border-[#F25912] text-white shadow-md'
                                 : 'bg-[#211832] border-[#3B265E] hover:border-[#5C3E94] text-slate-300'

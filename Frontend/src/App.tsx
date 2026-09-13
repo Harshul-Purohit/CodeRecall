@@ -40,7 +40,7 @@ const INITIAL_CARDS: ProblemCardData[] = [
       }
     ],
     codeSolution: {
-      language: 'Python 3',
+      language: 'Python',
       timeComplexity: 'O(N)',
       spaceComplexity: 'O(N)',
       dryRun: {
@@ -83,7 +83,174 @@ const INITIAL_CARDS: ProblemCardData[] = [
           type: 'return'
         }
       ],
-      explanation: 'Optimal single-pass hash map algorithm operating in linear O(N) time complexity.'
+      explanation: 'Optimal single-pass hash map algorithm operating in linear O(N) time complexity.',
+      languages: {
+        Python: {
+          language: 'Python',
+          codeLines: [
+            'def twoSum(nums: list[int], target: int) -> list[int]:',
+            '    seen = {}',
+            '    for i, num in enumerate(nums):',
+            '        complement = target - num',
+            '        if complement in seen:',
+            '            return [seen[complement], i]',
+            '        seen[num] = i',
+            '    return []'
+          ],
+          lineAnnotations: [
+            {
+              line: 2,
+              title: 'Hash State Initialization',
+              explanation: 'Creates an empty dict for {num: index} lookups.',
+              type: 'init'
+            },
+            {
+              line: 4,
+              title: 'Target Delta Calculation',
+              explanation: 'Computes target - num complement.',
+              type: 'state'
+            },
+            {
+              line: 5,
+              title: 'O(1) Map Lookup',
+              explanation: 'Checks if complement exists in seen map.',
+              type: 'condition'
+            },
+            {
+              line: 6,
+              title: 'Return Pair Indices',
+              explanation: 'Returns [seen[complement], i] on match.',
+              type: 'return'
+            }
+          ]
+        },
+        JavaScript: {
+          language: 'JavaScript',
+          codeLines: [
+            'function twoSum(nums, target) {',
+            '  const seen = new Map();',
+            '  for (let i = 0; i < nums.length; i++) {',
+            '    const complement = target - nums[i];',
+            '    if (seen.has(complement)) {',
+            '      return [seen.get(complement), i];',
+            '    }',
+            '    seen.set(nums[i], i);',
+            '  }',
+            '  return [];',
+            '}'
+          ],
+          lineAnnotations: [
+            {
+              line: 2,
+              title: 'JS Map Initialization',
+              explanation: 'Instantiates ES6 Map object for O(1) key-value hash lookups.',
+              type: 'init'
+            },
+            {
+              line: 4,
+              title: 'Complement Calculation',
+              explanation: 'Calculates target - nums[i] for current iteration.',
+              type: 'state'
+            },
+            {
+              line: 5,
+              title: 'Map.has Check',
+              explanation: 'Uses seen.has(complement) for fast O(1) key lookup.',
+              type: 'condition'
+            },
+            {
+              line: 6,
+              title: 'Return Result Array',
+              explanation: 'Returns pair indices array [seen.get(complement), i].',
+              type: 'return'
+            }
+          ]
+        },
+        'C++': {
+          language: 'C++',
+          codeLines: [
+            'vector<int> twoSum(vector<int>& nums, int target) {',
+            '    unordered_map<int, int> seen;',
+            '    for (int i = 0; i < nums.size(); ++i) {',
+            '        int complement = target - nums[i];',
+            '        if (seen.count(complement)) {',
+            '            return {seen[complement], i};',
+            '        }',
+            '        seen[nums[i]] = i;',
+            '    }',
+            '    return {};',
+            '}'
+          ],
+          lineAnnotations: [
+            {
+              line: 2,
+              title: 'STL Unordered Map Init',
+              explanation: 'Initializes std::unordered_map for O(1) average hash table operations.',
+              type: 'init'
+            },
+            {
+              line: 4,
+              title: 'Complement Delta',
+              explanation: 'Calculates integer complement = target - nums[i].',
+              type: 'state'
+            },
+            {
+              line: 5,
+              title: 'seen.count() Check',
+              explanation: 'Uses seen.count(complement) to check hash key existence.',
+              type: 'condition'
+            },
+            {
+              line: 6,
+              title: 'Return Vector Pair',
+              explanation: 'Returns inline vector initializer list {seen[complement], i}.',
+              type: 'return'
+            }
+          ]
+        },
+        Java: {
+          language: 'Java',
+          codeLines: [
+            'public int[] twoSum(int[] nums, int target) {',
+            '    Map<Integer, Integer> seen = new HashMap<>();',
+            '    for (int i = 0; i < nums.length; i++) {',
+            '        int complement = target - nums[i];',
+            '        if (seen.containsKey(complement)) {',
+            '            return new int[] { seen.get(complement), i };',
+            '        }',
+            '        seen.put(nums[i], i);',
+            '    }',
+            '    return new int[] {};',
+            '}'
+          ],
+          lineAnnotations: [
+            {
+              line: 2,
+              title: 'Java HashMap Init',
+              explanation: 'Instantiates HashMap<Integer, Integer> for integer pair lookup.',
+              type: 'init'
+            },
+            {
+              line: 4,
+              title: 'Complement Calculation',
+              explanation: 'Computes target - nums[i].',
+              type: 'state'
+            },
+            {
+              line: 5,
+              title: 'containsKey Check',
+              explanation: 'Invokes containsKey(complement) for O(1) presence verification.',
+              type: 'condition'
+            },
+            {
+              line: 6,
+              title: 'Return Primitive Array',
+              explanation: 'Returns new int[] { seen.get(complement), i }.',
+              type: 'return'
+            }
+          ]
+        }
+      }
     }
   },
   {
@@ -120,7 +287,7 @@ const INITIAL_CARDS: ProblemCardData[] = [
       }
     ],
     codeSolution: {
-      language: 'Python 3',
+      language: 'Python',
       timeComplexity: 'O(N)',
       spaceComplexity: 'O(min(N, M))',
       dryRun: {
@@ -142,19 +309,19 @@ const INITIAL_CARDS: ProblemCardData[] = [
         {
           line: 3,
           title: 'Pointer & Window Trackers',
-          explanation: 'Initializes window left boundary and max_len variable to track longest unique substring seen so far.',
+          explanation: 'Initializes window left boundary and max_len variable.',
           type: 'init'
         },
         {
           line: 5,
           title: 'Duplicate Window Contraction',
-          explanation: 'If incoming character exists within current window [left, right], advance left boundary past previous instance.',
+          explanation: 'If incoming character exists in current window, advance left boundary.',
           type: 'condition'
         },
         {
           line: 8,
           title: 'Max Window Length Update',
-          explanation: 'Recalculates max_len at each step using current window span (right - left + 1).',
+          explanation: 'Recalculates max_len using current window span (right - left + 1).',
           type: 'state'
         },
         {
@@ -164,7 +331,180 @@ const INITIAL_CARDS: ProblemCardData[] = [
           type: 'return'
         }
       ],
-      explanation: 'Optimal sliding window algorithm with dynamic index jump avoiding rescan of characters.'
+      explanation: 'Optimal sliding window algorithm with dynamic index jump.',
+      languages: {
+        Python: {
+          language: 'Python',
+          codeLines: [
+            'def lengthOfLongestSubstring(s: str) -> int:',
+            '    char_map = {}',
+            '    left = max_len = 0',
+            '    for right, char in enumerate(s):',
+            '        if char in char_map and char_map[char] >= left:',
+            '            left = char_map[char] + 1',
+            '        char_map[char] = right',
+            '        max_len = max(max_len, right - left + 1)',
+            '    return max_len'
+          ],
+          lineAnnotations: [
+            {
+              line: 3,
+              title: 'Pointer Trackers',
+              explanation: 'Initializes left and max_len pointers to 0.',
+              type: 'init'
+            },
+            {
+              line: 5,
+              title: 'Left Jump Condition',
+              explanation: 'Checks if duplicate char occurs within current window [left, right].',
+              type: 'condition'
+            },
+            {
+              line: 6,
+              title: 'Left Pointer Advance',
+              explanation: 'Jumps left pointer past previous occurrence of duplicate character.',
+              type: 'state'
+            },
+            {
+              line: 9,
+              title: 'Return Max Length',
+              explanation: 'Returns integer max_len of longest unique substring.',
+              type: 'return'
+            }
+          ]
+        },
+        JavaScript: {
+          language: 'JavaScript',
+          codeLines: [
+            'function lengthOfLongestSubstring(s) {',
+            '  const charMap = new Map();',
+            '  let left = 0, maxLen = 0;',
+            '  for (let right = 0; right < s.length; right++) {',
+            '    const char = s[right];',
+            '    if (charMap.has(char) && charMap.get(char) >= left) {',
+            '      left = charMap.get(char) + 1;',
+            '    }',
+            '    charMap.set(char, right);',
+            '    maxLen = Math.max(maxLen, right - left + 1);',
+            '  }',
+            '  return maxLen;',
+            '}'
+          ],
+          lineAnnotations: [
+            {
+              line: 3,
+              title: 'Window Variables Init',
+              explanation: 'Initializes left boundary and maxLen accumulator.',
+              type: 'init'
+            },
+            {
+              line: 6,
+              title: 'Map Index Range Check',
+              explanation: 'Checks if duplicate character index is >= left to prevent regressing.',
+              type: 'condition'
+            },
+            {
+              line: 10,
+              title: 'Math.max Window Span',
+              explanation: 'Updates maxLen using Math.max(maxLen, right - left + 1).',
+              type: 'state'
+            },
+            {
+              line: 12,
+              title: 'Return Result',
+              explanation: 'Returns maxLen integer value.',
+              type: 'return'
+            }
+          ]
+        },
+        'C++': {
+          language: 'C++',
+          codeLines: [
+            'int lengthOfLongestSubstring(string s) {',
+            '    unordered_map<char, int> charMap;',
+            '    int left = 0, maxLen = 0;',
+            '    for (int right = 0; right < s.size(); ++right) {',
+            '        if (charMap.count(s[right]) && charMap[s[right]] >= left) {',
+            '            left = charMap[s[right]] + 1;',
+            '        }',
+            '        charMap[s[right]] = right;',
+            '        maxLen = max(maxLen, right - left + 1);',
+            '    }',
+            '    return maxLen;',
+            '}'
+          ],
+          lineAnnotations: [
+            {
+              line: 3,
+              title: 'C++ Pointers Init',
+              explanation: 'Initializes left and maxLen integers to zero.',
+              type: 'init'
+            },
+            {
+              line: 5,
+              title: 'charMap.count Presence Check',
+              explanation: 'Verifies character presence and index validity inside current window.',
+              type: 'condition'
+            },
+            {
+              line: 9,
+              title: 'std::max Calculation',
+              explanation: 'Updates maxLen via std::max(maxLen, right - left + 1).',
+              type: 'state'
+            },
+            {
+              line: 11,
+              title: 'Return Substring Length',
+              explanation: 'Returns integer maxLen.',
+              type: 'return'
+            }
+          ]
+        },
+        Java: {
+          language: 'Java',
+          codeLines: [
+            'public int lengthOfLongestSubstring(String s) {',
+            '    Map<Character, Integer> charMap = new HashMap<>();',
+            '    int left = 0, maxLen = 0;',
+            '    for (int right = 0; right < s.length(); right++) {',
+            '        char c = s.charAt(right);',
+            '        if (charMap.containsKey(c) && charMap.get(c) >= left) {',
+            '            left = charMap.get(c) + 1;',
+            '        }',
+            '        charMap.put(c, right);',
+            '        maxLen = Math.max(maxLen, right - left + 1);',
+            '    }',
+            '    return maxLen;',
+            '}'
+          ],
+          lineAnnotations: [
+            {
+              line: 3,
+              title: 'Java Window Init',
+              explanation: 'Creates HashMap<Character, Integer> for character index tracking.',
+              type: 'init'
+            },
+            {
+              line: 6,
+              title: 'containsKey Check',
+              explanation: 'Checks if character exists in map and has index >= left.',
+              type: 'condition'
+            },
+            {
+              line: 10,
+              title: 'Math.max Window Recalculation',
+              explanation: 'Updates maxLen using Math.max.',
+              type: 'state'
+            },
+            {
+              line: 12,
+              title: 'Return Int Result',
+              explanation: 'Returns maxLen integer.',
+              type: 'return'
+            }
+          ]
+        }
+      }
     }
   },
   {
@@ -201,7 +541,7 @@ const INITIAL_CARDS: ProblemCardData[] = [
       }
     ],
     codeSolution: {
-      language: 'Python 3',
+      language: 'Python',
       timeComplexity: 'O(N²)',
       spaceComplexity: 'O(1) auxiliary',
       dryRun: {
@@ -230,29 +570,231 @@ const INITIAL_CARDS: ProblemCardData[] = [
         {
           line: 2,
           title: 'In-Place Array Sorting',
-          explanation: 'Sorts array in O(N log N) time to enable monotonic directional pointer convergence.',
+          explanation: 'Sorts array in O(N log N) time to enable monotonic pointer convergence.',
           type: 'init'
         },
         {
           line: 5,
           title: 'Primary Duplicate Skip',
-          explanation: 'Skips fix element nums[i] if identical to previous element nums[i-1] to eliminate duplicate triplets.',
+          explanation: 'Skips fix element nums[i] if identical to previous element nums[i-1].',
           type: 'condition'
         },
         {
           line: 8,
           title: 'Triplet Sum Evaluation',
-          explanation: 'Evaluates 3-element sum s against zero to decide whether to increment left or decrement right.',
+          explanation: 'Evaluates 3-element sum s against zero.',
           type: 'state'
         },
         {
           line: 12,
           title: 'Record & Skip Duplicate Candidates',
-          explanation: 'Appends valid triplet and skips duplicate values for both left and right pointers.',
+          explanation: 'Appends valid triplet and skips duplicate values for both pointers.',
           type: 'return'
         }
       ],
-      explanation: 'Two-pointer technique after array sorting achieving O(N²) time complexity.'
+      explanation: 'Two-pointer technique after array sorting achieving O(N²) time complexity.',
+      languages: {
+        Python: {
+          language: 'Python',
+          codeLines: [
+            'def threeSum(nums: list[int]) -> list[list[int]]:',
+            '    nums.sort()',
+            '    res = []',
+            '    for i in range(len(nums) - 2):',
+            '        if i > 0 and nums[i] == nums[i - 1]: continue',
+            '        l, r = i + 1, len(nums) - 1',
+            '        while l < r:',
+            '            s = nums[i] + nums[l] + nums[r]',
+            '            if s < 0: l += 1',
+            '            elif s > 0: r -= 1',
+            '            else:',
+            '                res.append([nums[i], nums[l], nums[r]])',
+            '                while l < r and nums[l] == nums[l + 1]: l += 1',
+            '                while l < r and nums[r] == nums[r - 1]: r -= 1',
+            '                l += 1; r -= 1',
+            '    return res'
+          ],
+          lineAnnotations: [
+            {
+              line: 2,
+              title: 'In-Place Array Sorting',
+              explanation: 'Sorts array to allow directional two-pointer scan.',
+              type: 'init'
+            },
+            {
+              line: 5,
+              title: 'Duplicate Anchor Skip',
+              explanation: 'Skips identical anchor elements to avoid duplicate triplets.',
+              type: 'condition'
+            },
+            {
+              line: 8,
+              title: 'Sum Evaluation',
+              explanation: 'Calculates 3-element sum.',
+              type: 'state'
+            },
+            {
+              line: 16,
+              title: 'Return Triplet List',
+              explanation: 'Returns list of unique triplets.',
+              type: 'return'
+            }
+          ]
+        },
+        JavaScript: {
+          language: 'JavaScript',
+          codeLines: [
+            'function threeSum(nums) {',
+            '  nums.sort((a, b) => a - b);',
+            '  const res = [];',
+            '  for (let i = 0; i < nums.length - 2; i++) {',
+            '    if (i > 0 && nums[i] === nums[i - 1]) continue;',
+            '    let l = i + 1, r = nums.length - 1;',
+            '    while (l < r) {',
+            '      const sum = nums[i] + nums[l] + nums[r];',
+            '      if (sum < 0) l++;',
+            '      else if (sum > 0) r--;',
+            '      else {',
+            '        res.push([nums[i], nums[l], nums[r]]);',
+            '        while (l < r && nums[l] === nums[l + 1]) l++;',
+            '        while (l < r && nums[r] === nums[r - 1]) r--;',
+            '        l++; r--;',
+            '      }',
+            '    }',
+            '  }',
+            '  return res;',
+            '}'
+          ],
+          lineAnnotations: [
+            {
+              line: 2,
+              title: 'JS Numerical Sort',
+              explanation: 'Sorts nums in numerical ascending order using (a, b) => a - b.',
+              type: 'init'
+            },
+            {
+              line: 5,
+              title: 'Skip Duplicate i',
+              explanation: 'Skips duplicate values for outer loop index i.',
+              type: 'condition'
+            },
+            {
+              line: 8,
+              title: 'Sum Comparison',
+              explanation: 'Computes sum of nums[i] + nums[l] + nums[r].',
+              type: 'state'
+            },
+            {
+              line: 19,
+              title: 'Return Triplet Array',
+              explanation: 'Returns result array of unique triplets.',
+              type: 'return'
+            }
+          ]
+        },
+        'C++': {
+          language: 'C++',
+          codeLines: [
+            'vector<vector<int>> threeSum(vector<int>& nums) {',
+            '    sort(nums.begin(), nums.end());',
+            '    vector<vector<int>> res;',
+            '    for (int i = 0; i < (int)nums.size() - 2; ++i) {',
+            '        if (i > 0 && nums[i] == nums[i - 1]) continue;',
+            '        int l = i + 1, r = nums.size() - 1;',
+            '        while (l < r) {',
+            '            int sum = nums[i] + nums[l] + nums[r];',
+            '            if (sum < 0) l++;',
+            '            else if (sum > 0) r--;',
+            '            else {',
+            '                res.push_back({nums[i], nums[l], nums[r]});',
+            '                while (l < r && nums[l] == nums[l + 1]) l++;',
+            '                while (l < r && nums[r] == nums[r - 1]) r--;',
+            '                l++; r--;',
+            '            }',
+            '        }',
+            '    }',
+            '    return res;',
+            '}'
+          ],
+          lineAnnotations: [
+            {
+              line: 2,
+              title: 'std::sort Implementation',
+              explanation: 'Uses C++ std::sort over nums vector.',
+              type: 'init'
+            },
+            {
+              line: 5,
+              title: 'Duplicate Anchor Skip',
+              explanation: 'Skips duplicate values for anchor pointer i.',
+              type: 'condition'
+            },
+            {
+              line: 12,
+              title: 'Push Back Vector Triplet',
+              explanation: 'Inserts triplet into 2D vector result.',
+              type: 'state'
+            },
+            {
+              line: 19,
+              title: 'Return 2D Vector',
+              explanation: 'Returns vector of vector triplets.',
+              type: 'return'
+            }
+          ]
+        },
+        Java: {
+          language: 'Java',
+          codeLines: [
+            'public List<List<Integer>> threeSum(int[] nums) {',
+            '    Arrays.sort(nums);',
+            '    List<List<Integer>> res = new ArrayList<>();',
+            '    for (int i = 0; i < nums.length - 2; i++) {',
+            '        if (i > 0 && nums[i] == nums[i - 1]) continue;',
+            '        int l = i + 1, r = nums.length - 1;',
+            '        while (l < r) {',
+            '            int sum = nums[i] + nums[l] + nums[r];',
+            '            if (sum < 0) l++;',
+            '            else if (sum > 0) r--;',
+            '            else {',
+            '                res.add(Arrays.asList(nums[i], nums[l], nums[r]));',
+            '                while (l < r && nums[l] == nums[l + 1]) l++;',
+            '                while (l < r && nums[r] == nums[r - 1]) r--;',
+            '                l++; r--;',
+            '            }',
+            '        }',
+            '    }',
+            '    return res;',
+            '}'
+          ],
+          lineAnnotations: [
+            {
+              line: 2,
+              title: 'Arrays.sort Utility',
+              explanation: 'Sorts primitive int array using dual-pivot Quicksort.',
+              type: 'init'
+            },
+            {
+              line: 5,
+              title: 'Duplicate i Check',
+              explanation: 'Skips anchor iteration if nums[i] == nums[i-1].',
+              type: 'condition'
+            },
+            {
+              line: 12,
+              title: 'Arrays.asList Builder',
+              explanation: 'Constructs List<Integer> triplet and adds to res.',
+              type: 'state'
+            },
+            {
+              line: 19,
+              title: 'Return Triplet List',
+              explanation: 'Returns List<List<Integer>>.',
+              type: 'return'
+            }
+          ]
+        }
+      }
     }
   },
   {
@@ -289,7 +831,7 @@ const INITIAL_CARDS: ProblemCardData[] = [
       }
     ],
     codeSolution: {
-      language: 'Python 3',
+      language: 'Python',
       timeComplexity: 'O(N)',
       spaceComplexity: 'O(1)',
       dryRun: {
@@ -311,13 +853,13 @@ const INITIAL_CARDS: ProblemCardData[] = [
         {
           line: 2,
           title: 'Initialize Prev Pointer',
-          explanation: 'Sets prev to None, which will become the tail node.next of reversed list.',
+          explanation: 'Sets prev to None, which will become tail node.next.',
           type: 'init'
         },
         {
           line: 5,
           title: 'Preserve Forward Connection',
-          explanation: 'Saves curr.next to nxt temporary reference before overwriting pointer link.',
+          explanation: 'Saves curr.next to nxt temporary reference.',
           type: 'state'
         },
         {
@@ -329,11 +871,150 @@ const INITIAL_CARDS: ProblemCardData[] = [
         {
           line: 9,
           title: 'Return New Head Node',
-          explanation: 'Returns prev as new head of fully reversed linked list.',
+          explanation: 'Returns prev as new head of fully reversed list.',
           type: 'return'
         }
       ],
-      explanation: 'In-place linked list pointer reversal in O(N) time and O(1) space complexity.'
+      explanation: 'In-place linked list pointer reversal in O(N) time and O(1) space complexity.',
+      languages: {
+        Python: {
+          language: 'Python',
+          codeLines: [
+            'def reverseList(head: Optional[ListNode]) -> Optional[ListNode]:',
+            '    prev, curr = None, head',
+            '    while curr:',
+            '        nxt = curr.next',
+            '        curr.next = prev',
+            '        prev, curr = curr, nxt',
+            '    return prev'
+          ],
+          lineAnnotations: [
+            {
+              line: 2,
+              title: 'Pointer Init',
+              explanation: 'Initializes prev to None and curr to head.',
+              type: 'init'
+            },
+            {
+              line: 5,
+              title: 'Link Reversal',
+              explanation: 'Points curr.next back to prev.',
+              type: 'state'
+            },
+            {
+              line: 7,
+              title: 'Return Head',
+              explanation: 'Returns prev node as new list head.',
+              type: 'return'
+            }
+          ]
+        },
+        JavaScript: {
+          language: 'JavaScript',
+          codeLines: [
+            'function reverseList(head) {',
+            '  let prev = null, curr = head;',
+            '  while (curr !== null) {',
+            '    const next = curr.next;',
+            '    curr.next = prev;',
+            '    prev = curr;',
+            '    curr = next;',
+            '  }',
+            '  return prev;',
+            '}'
+          ],
+          lineAnnotations: [
+            {
+              line: 2,
+              title: 'JS Pointer Init',
+              explanation: 'Initializes prev = null and curr = head.',
+              type: 'init'
+            },
+            {
+              line: 5,
+              title: 'Pointer Reassignment',
+              explanation: 'Assigns curr.next = prev.',
+              type: 'state'
+            },
+            {
+              line: 9,
+              title: 'Return New Head',
+              explanation: 'Returns prev pointer as head.',
+              type: 'return'
+            }
+          ]
+        },
+        'C++': {
+          language: 'C++',
+          codeLines: [
+            'ListNode* reverseList(ListNode* head) {',
+            '    ListNode *prev = nullptr, *curr = head;',
+            '    while (curr) {',
+            '        ListNode* nxt = curr->next;',
+            '        curr->next = prev;',
+            '        prev = curr;',
+            '        curr = nxt;',
+            '    }',
+            '    return prev;',
+            '}'
+          ],
+          lineAnnotations: [
+            {
+              line: 2,
+              title: 'C++ Nullptr Init',
+              explanation: 'Sets prev to nullptr.',
+              type: 'init'
+            },
+            {
+              line: 5,
+              title: 'Pointer Reversal',
+              explanation: 'Rebinds curr->next = prev.',
+              type: 'state'
+            },
+            {
+              line: 9,
+              title: 'Return ListNode*',
+              explanation: 'Returns prev pointer.',
+              type: 'return'
+            }
+          ]
+        },
+        Java: {
+          language: 'Java',
+          codeLines: [
+            'public ListNode reverseList(ListNode head) {',
+            '    ListNode prev = null, curr = head;',
+            '    while (curr != null) {',
+            '        ListNode next = curr.next;',
+            '        curr.next = prev;',
+            '        prev = curr;',
+            '        curr = next;',
+            '    }',
+            '    return prev;',
+            '}'
+          ],
+          lineAnnotations: [
+            {
+              line: 2,
+              title: 'Java ListNode References',
+              explanation: 'Sets prev = null and curr = head.',
+              type: 'init'
+            },
+            {
+              line: 5,
+              title: 'Next Pointer Overwrite',
+              explanation: 'Sets curr.next = prev.',
+              type: 'state'
+            },
+            {
+              line: 9,
+              title: 'Return prev',
+              explanation: 'Returns prev reference as reversed head.',
+              type: 'return'
+            }
+          ]
+        }
+      }
     }
   }
 ];
@@ -406,7 +1087,6 @@ export const App: React.FC = () => {
     setCards((prevCards) =>
       prevCards.map((c) => {
         if (c.id === cardId) {
-          // Double SM-2 interval or extend
           const currentDays = parseInt(c.sm2Interval) || 3;
           const newDays = Math.min(30, currentDays * 2);
           const newEf = (parseFloat(c.sm2Ef) + 0.1).toFixed(1);
@@ -491,7 +1171,7 @@ export const App: React.FC = () => {
           onFilterChange={(filterId) => setActiveFilter(filterId)}
         />
 
-        {/* Stacked Problem Cards with 3-Column Active Recall Drawer */}
+        {/* Stacked Problem Cards with Single-View Active Recall Trays */}
         {filteredCards.length > 0 ? (
           <div className="space-y-4 mb-8">
             {filteredCards.map((card, index) => (
