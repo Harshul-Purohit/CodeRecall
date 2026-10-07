@@ -56,30 +56,16 @@ export interface CodeSolution {
   languages?: Partial<Record<SupportedLanguage, SingleLanguageSolution>>;
 }
 
-export interface ProblemCardData {
-  id: string;
-  number: string;
-  title: string;
-  pattern: string;
-  patternId: string;
-  leetcodeUrl: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  dueStatus: string;
-  lastHistory: string;
-  lastAttemptType?: AttemptType;
-  sm2Interval: string;
-  sm2Ef: string;
-  hints: StructuredHint[];
-  codeSolution: CodeSolution;
-}
+import { ProblemCardData } from '../types/problem';
+export type { ProblemCardData };
 
 interface ProblemCardProps {
   card: ProblemCardData;
   isActiveCard: boolean;
   onSelectCard: () => void;
-  onSolveWithoutHelp: (cardId: string) => void;
-  onNeedHints: (cardId: string) => void;
-  onViewSolution: (cardId: string) => void;
+  onSolveWithoutHelp: (cardId: string | number) => void;
+  onNeedHints: (cardId: string | number) => void;
+  onViewSolution: (cardId: string | number) => void;
   keyboardTrigger?: { key: '1' | '2' | '3'; timestamp: number } | null;
 }
 
@@ -176,7 +162,7 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({
 
   // Attempt History Pill styling based on last attempt state
   const renderAttemptTag = () => {
-    const text = card.lastHistory;
+    const text = card.lastHistory || '';
     
     if (text.includes('Solved Without Help') || card.lastAttemptType === 'solved_without_help') {
       return (
@@ -203,7 +189,7 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({
     
     return (
       <span className="bg-[#211832] text-[#B4A7D6] border border-[#5C3E94] text-[11px] px-2.5 py-0.5 rounded font-mono font-medium">
-        {text}
+        {text || 'New'}
       </span>
     );
   };
@@ -245,7 +231,7 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({
           {/* Problem Metadata */}
           <div className="flex items-center gap-2.5 flex-wrap">
             <span className="font-mono text-sm text-[#F25912] font-bold bg-[#211832] px-2 py-0.5 rounded border border-[#5C3E94]">
-              {card.number}
+              {card.problemNumber || card.number}
             </span>
             <a
               href={card.leetcodeUrl}
@@ -257,9 +243,11 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({
               <span>{card.title}</span>
               <ExternalLink className="w-3.5 h-3.5 text-[#B4A7D6] hover:text-white" />
             </a>
-            <span className="text-xs font-mono text-[#B4A7D6] bg-[#2C1F45] px-2 py-0.5 rounded border border-[#5C3E94]/60">
-              {card.pattern}
-            </span>
+            {(card.patterns && card.patterns.length > 0 ? card.patterns : card.pattern ? [card.pattern] : []).map((p) => (
+              <span key={p} className="text-xs font-mono text-[#B4A7D6] bg-[#2C1F45] px-2 py-0.5 rounded border border-[#5C3E94]/60">
+                {p}
+              </span>
+            ))}
           </div>
 
           {/* Right Status Badges */}
@@ -285,7 +273,7 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({
             <button
               onClick={handleSolveWithoutHelp}
               className={`px-3 py-1.5 text-xs rounded font-medium transition-all duration-150 flex items-center gap-1.5 focus:outline-none ${
-                card.lastAttemptType === 'solved_without_help' || card.lastHistory.includes('Solved Without Help')
+                card.lastAttemptType === 'solved_without_help' || (card.lastHistory && card.lastHistory.includes('Solved Without Help'))
                   ? 'bg-[#22C55E] text-slate-950 font-bold hover:bg-[#22C55E]/90 shadow-[0_0_12px_rgba(34,197,94,0.3)]'
                   : 'bg-[#F25912] text-white hover:bg-[#F25912]/90 shadow-sm'
               }`}

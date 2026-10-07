@@ -1,43 +1,55 @@
 import React from 'react';
-
-export interface FilterOption {
-  id: string;
-  label: string;
-  count: number;
-}
+import { PatternCount } from '../types/filter';
 
 interface PatternFilterProps {
-  activeFilter: string;
-  onFilterChange: (filterId: string) => void;
+  patterns: PatternCount[];
+  activePattern: string;
+  onPatternChange: (patternName: string) => void;
+  // Aliases for backwards compatibility
+  activeFilter?: string;
+  onFilterChange?: (filterId: string) => void;
 }
 
-const filters: FilterOption[] = [
-  { id: 'all', label: 'All', count: 8 },
-  { id: 'two-pointers', label: 'Two Pointers', count: 3 },
-  { id: 'sliding-window', label: 'Sliding Window', count: 2 },
-  { id: 'hashing', label: 'Hashing', count: 3 },
-  { id: 'dp', label: 'Dynamic Programming', count: 0 },
-];
-
 export const PatternFilter: React.FC<PatternFilterProps> = ({
+  patterns,
+  activePattern,
+  onPatternChange,
   activeFilter,
-  onFilterChange,
+  onFilterChange
 }) => {
+  const currentActive = activePattern || activeFilter || 'ALL';
+  const handleSelect = (patternName: string) => {
+    onPatternChange(patternName);
+    if (onFilterChange) {
+      onFilterChange(patternName);
+    }
+  };
+
   return (
     <div className="flex flex-wrap items-center gap-2 mb-6">
-      {filters.map((filter) => {
-        const isActive = activeFilter === filter.id;
+      {patterns.map((item) => {
+        const isActive =
+          currentActive === item.name ||
+          (currentActive.toLowerCase() === 'all' && item.name.toLowerCase() === 'all');
+
         return (
           <button
-            key={filter.id}
-            onClick={() => onFilterChange(filter.id)}
-            className={`px-3 py-1 text-xs rounded-md font-semibold transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#F25912] ${
+            key={item.name}
+            onClick={() => handleSelect(item.name)}
+            className={`px-3 py-1.5 text-xs rounded-lg font-semibold transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#F25912] ${
               isActive
-                ? 'bg-[#F25912] text-white shadow-sm'
+                ? 'bg-[#F25912] text-white shadow-sm ring-1 ring-[#F25912]/40'
                 : 'bg-[#2C1F45] border border-[#5C3E94] text-[#B4A7D6] hover:text-white hover:border-[#F25912]/50'
             }`}
           >
-            {filter.label} ({filter.count})
+            <span>{item.name}</span>
+            <span
+              className={`ml-1.5 px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
+                isActive ? 'bg-white/20 text-white font-bold' : 'bg-[#1A1228] text-[#B4A7D6]'
+              }`}
+            >
+              {item.count}
+            </span>
           </button>
         );
       })}
