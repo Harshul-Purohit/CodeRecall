@@ -6,6 +6,7 @@ import { PatternFilter } from './components/PatternFilter';
 import { ProblemCard } from './components/ProblemCard';
 import { EmptyQueueState } from './components/EmptyQueueState';
 import { StatusBar } from './components/StatusBar';
+import { AnalyticsDashboard } from './components/analytics/AnalyticsDashboard';
 import { useProblemQueue } from './hooks/useProblemQueue';
 
 export const App: React.FC = () => {
@@ -31,6 +32,8 @@ export const App: React.FC = () => {
     handleViewSolution: solutionAction
   } = useProblemQueue();
 
+  // Active View State: 'queue' vs 'analytics'
+  const [activeView, setActiveView] = useState<'queue' | 'analytics'>('queue');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Timestamp trigger passed down to active card for keyboard shortcuts
@@ -39,10 +42,21 @@ export const App: React.FC = () => {
     timestamp: number;
   } | null>(null);
 
-  // Global keyboard shortcuts (1, 2, 3, J, K, ArrowUp, ArrowDown)
+  // Toast notification helper
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 3200);
+  };
+
+  // Global keyboard shortcuts including chorded G then A / G then Q navigation
   useEffect(() => {
+    let isGActive = false;
+    let gTimer: ReturnType<typeof setTimeout> | null = null;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Prevent existing Phase 2 shortcuts from firing when typing inside inputs
+      // Prevent shortcuts when typing inside form inputs
       const target = e.target as HTMLElement;
       const isInput =
         target.tagName === 'INPUT' ||
@@ -53,35 +67,62 @@ export const App: React.FC = () => {
 
       const key = e.key.toLowerCase();
 
-      if (key === 'j' || key === 'arrowdown') {
-        e.preventDefault();
-        setActiveCardIndex((prev) => Math.min(prev + 1, Math.max(0, filteredCards.length - 1)));
-      } else if (key === 'k' || key === 'arrowup') {
-        e.preventDefault();
-        setActiveCardIndex((prev) => Math.max(prev - 1, 0));
-      } else if (key === '1') {
-        e.preventDefault();
-        setKeyboardTrigger({ key: '1', timestamp: Date.now() });
-      } else if (key === '2') {
-        e.preventDefault();
-        setKeyboardTrigger({ key: '2', timestamp: Date.now() });
-      } else if (key === '3') {
-        e.preventDefault();
-        setKeyboardTrigger({ key: '3', timestamp: Date.now() });
+      // Check for chord start key: 'g'
+      if (key === 'g') {
+        isGActive = true;
+        if (gTimer) clearTimeout(gTimer);
+        gTimer = setTimeout(() => {
+          isGActive = false;
+        }, 1500);
+        return;
+      }
+
+      // Check chord sequence: G then A (Analytics) or G then Q (Queue)
+      if (isGActive) {
+        if (key === 'a') {
+          e.preventDefault();
+          setActiveView('analytics');
+          isGActive = false;
+          if (gTimer) clearTimeout(gTimer);
+          showToast('📊 Switched to Analytics Telemetry Dashboard');
+          return;
+        } else if (key === 'q') {
+          e.preventDefault();
+          setActiveView('queue');
+          isGActive = false;
+          if (gTimer) clearTimeout(gTimer);
+          showToast('📋 Switched to Revision Queue');
+          return;
+        }
+      }
+
+      // Queue-specific shortcuts (1, 2, 3, J, K, ArrowUp, ArrowDown)
+      if (activeView === 'queue') {
+        if (key === 'j' || key === 'arrowdown') {
+          e.preventDefault();
+          setActiveCardIndex((prev) => Math.min(prev + 1, Math.max(0, filteredCards.length - 1)));
+        } else if (key === 'k' || key === 'arrowup') {
+          e.preventDefault();
+          setActiveCardIndex((prev) => Math.max(prev - 1, 0));
+        } else if (key === '1') {
+          e.preventDefault();
+          setKeyboardTrigger({ key: '1', timestamp: Date.now() });
+        } else if (key === '2') {
+          e.preventDefault();
+          setKeyboardTrigger({ key: '2', timestamp: Date.now() });
+        } else if (key === '3') {
+          e.preventDefault();
+          setKeyboardTrigger({ key: '3', timestamp: Date.now() });
+        }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [filteredCards.length, setActiveCardIndex]);
-
-  // Toast notification helper
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 3200);
-  };
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      if (gTimer) clearTimeout(gTimer);
+    };
+  }, [filteredCards.length, setActiveCardIndex, activeView]);
 
   // Handler: Solved Without Help
   const handleSolveWithoutHelp = (cardId: string | number) => {
@@ -108,8 +149,17 @@ export const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#211832] text-white flex flex-col justify-between font-sans selection:bg-[#F25912] selection:text-white">
-      {/* Top Navbar */}
-      <Navbar onSyncComplete={() => showToast('LeetCode submissions synchronized successfully!')} />
+      {/* Top Navbar with View Switcher */}
+      <Navbar
+        activeView={activeView}
+        onViewChange={(v) => {
+          setActiveView(v);
+          showToast(v === 'analytics' ? '📊 Switched to Analytics Telemetry Dashboard' : '📋 Switched to Revision Queue');
+        }}
+        dueTodayCount={dueTodayCount}
+        currentStreak={14}
+        onSyncComplete={() => showToast('LeetCode submissions synchronized successfully!')}
+      />
 
       {/* Main Content Area */}
       <main className="max-w-7xl w-full mx-auto px-4 sm:px-8 py-6 flex-1 flex flex-col">
@@ -121,55 +171,62 @@ export const App: React.FC = () => {
           </div>
         )}
 
-        {/* Hero Telemetry */}
-        <HeroTelemetry
-          totalCards={cards.length}
-          filteredCount={filteredCards.length}
-          dueTodayCount={dueTodayCount}
-          retentionRate={94.8}
-        />
-
-        {/* Search Bar, Quick Filters & Sort Controls */}
-        <SearchAndFilters
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          quickFilter={quickFilter}
-          onQuickFilterChange={setQuickFilter}
-          sortBy={sortBy}
-          onSortByChange={setSortBy}
-          quickFilterCounts={quickFilterCounts}
-        />
-
-        {/* Pattern Filter Pills with Dynamic Counts */}
-        <PatternFilter
-          patterns={patternCounts}
-          activePattern={selectedPattern}
-          onPatternChange={setSelectedPattern}
-        />
-
-        {/* Stacked Problem Cards or Empty State View */}
-        {filteredCards.length > 0 ? (
-          <div className="space-y-4 mb-8">
-            {filteredCards.map((card, index) => (
-              <ProblemCard
-                key={card.id}
-                card={card}
-                isActiveCard={index === activeCardIndex}
-                onSelectCard={() => setActiveCardIndex(index)}
-                onSolveWithoutHelp={handleSolveWithoutHelp}
-                onNeedHints={handleNeedHints}
-                onViewSolution={handleViewSolution}
-                keyboardTrigger={index === activeCardIndex ? keyboardTrigger : null}
-              />
-            ))}
-          </div>
+        {/* View Switch Condition: Analytics Dashboard vs Revision Queue */}
+        {activeView === 'analytics' ? (
+          <AnalyticsDashboard cards={cards} />
         ) : (
-          <EmptyQueueState
-            hasActiveFilters={hasActiveFilters}
-            quickFilter={quickFilter}
-            onClearFilters={clearFilters}
-            onSyncLeetCode={() => showToast('LeetCode submissions synchronized successfully!')}
-          />
+          <>
+            {/* Hero Telemetry */}
+            <HeroTelemetry
+              totalCards={cards.length}
+              filteredCount={filteredCards.length}
+              dueTodayCount={dueTodayCount}
+              retentionRate={94.8}
+            />
+
+            {/* Search Bar, Quick Filters & Sort Controls */}
+            <SearchAndFilters
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              quickFilter={quickFilter}
+              onQuickFilterChange={setQuickFilter}
+              sortBy={sortBy}
+              onSortByChange={setSortBy}
+              quickFilterCounts={quickFilterCounts}
+            />
+
+            {/* Pattern Filter Pills with Dynamic Counts */}
+            <PatternFilter
+              patterns={patternCounts}
+              activePattern={selectedPattern}
+              onPatternChange={setSelectedPattern}
+            />
+
+            {/* Stacked Problem Cards or Empty State View */}
+            {filteredCards.length > 0 ? (
+              <div className="space-y-4 mb-8">
+                {filteredCards.map((card, index) => (
+                  <ProblemCard
+                    key={card.id}
+                    card={card}
+                    isActiveCard={index === activeCardIndex}
+                    onSelectCard={() => setActiveCardIndex(index)}
+                    onSolveWithoutHelp={handleSolveWithoutHelp}
+                    onNeedHints={handleNeedHints}
+                    onViewSolution={handleViewSolution}
+                    keyboardTrigger={index === activeCardIndex ? keyboardTrigger : null}
+                  />
+                ))}
+              </div>
+            ) : (
+              <EmptyQueueState
+                hasActiveFilters={hasActiveFilters}
+                quickFilter={quickFilter}
+                onClearFilters={clearFilters}
+                onSyncLeetCode={() => showToast('LeetCode submissions synchronized successfully!')}
+              />
+            )}
+          </>
         )}
       </main>
 
@@ -178,3 +235,4 @@ export const App: React.FC = () => {
     </div>
   );
 };
+

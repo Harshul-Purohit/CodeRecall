@@ -7,6 +7,10 @@ export const StatusBar: React.FC = () => {
       <div className="flex items-center gap-3 flex-wrap">
         <span className="text-slate-400 font-medium hidden md:inline">Shortcuts:</span>
         <div className="flex items-center gap-1.5">
+          <kbd className="keycap">G A / G Q</kbd>
+          <span className="text-[#C4BBF0] text-[11px] font-medium">Switch View</span>
+        </div>
+        <div className="flex items-center gap-1.5">
           <kbd className="keycap">1</kbd>
           <span className="text-slate-300 text-[11px]">Solved</span>
         </div>
@@ -26,8 +30,9 @@ export const StatusBar: React.FC = () => {
 
       {/* Right Branding */}
       <div className="font-mono text-[11px] text-[#B4A7D6] tracking-tight">
-        CodeRecall SRS Engine • Zero Grinding Clutter
+        CodeRecall Telemetry Engine • Monotonic Memory Stabilization
       </div>
     </footer>
   );
 };
+
