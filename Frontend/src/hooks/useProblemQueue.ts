@@ -262,6 +262,11 @@ export function useProblemQueue(initialDataset: ProblemCardData[] = INITIAL_CARD
     );
   };
 
+  const addProblemCard = (newCardData: ProblemCardData) => {
+    setCards((prev) => [newCardData, ...prev]);
+    setActiveCardIndex(0);
+  };
+
   return {
     cards,
     filteredCards,
@@ -279,8 +284,10 @@ export function useProblemQueue(initialDataset: ProblemCardData[] = INITIAL_CARD
     quickFilterCounts,
     clearFilters,
     hasActiveFilters,
+    addProblemCard,
     handleSolveWithoutHelp,
     handleNeedHints,
     handleViewSolution
   };
 }
+
