@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { RefreshCw, CheckCircle2, Layers, BarChart3, Flame } from 'lucide-react';
+import { RefreshCw, CheckCircle2, Layers, BarChart3, Flame, Plus } from 'lucide-react';
 import { Logo } from './Logo';
 
 interface NavbarProps {
@@ -8,6 +8,7 @@ interface NavbarProps {
   dueTodayCount?: number;
   currentStreak?: number;
   onSyncComplete?: () => void;
+  onOpenAddModal?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -15,7 +16,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onViewChange,
   dueTodayCount = 3,
   currentStreak = 14,
-  onSyncComplete
+  onSyncComplete,
+  onOpenAddModal
 }) => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncStatus, setSyncStatus] = useState<string | null>(null);
@@ -100,7 +102,22 @@ export const Navbar: React.FC<NavbarProps> = ({
           {dueTodayCount} Due Today
         </div>
 
-        {/* Action Button */}
+        {/* Action Button: + New Card */}
+        {onOpenAddModal && (
+          <button
+            onClick={onOpenAddModal}
+            className="flex items-center gap-1.5 text-white bg-[#4F3B78] hover:bg-[#927FBF] hover:text-[#363B4E] border border-[#927FBF] transition-all duration-150 px-3.5 py-1.5 rounded-md text-xs font-bold font-mono focus:outline-none focus:ring-2 focus:ring-[#C4BBF0] shadow-md"
+            title="Create Custom Problem Card (Shortcut: N)"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>+ New Card</span>
+            <kbd className="hidden md:inline text-[9px] px-1 py-0.2 bg-[#363B4E] rounded text-[#C4BBF0] border border-[#927FBF]/60">
+              N
+            </kbd>
+          </button>
+        )}
+
+        {/* Action Button: Sync LeetCode */}
         <button
           onClick={handleSync}
           disabled={isSyncing}
@@ -113,4 +130,5 @@ export const Navbar: React.FC<NavbarProps> = ({
     </header>
   );
 };
+
 

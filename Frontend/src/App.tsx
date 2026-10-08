@@ -7,7 +7,9 @@ import { ProblemCard } from './components/ProblemCard';
 import { EmptyQueueState } from './components/EmptyQueueState';
 import { StatusBar } from './components/StatusBar';
 import { AnalyticsDashboard } from './components/analytics/AnalyticsDashboard';
+import { AddProblemModal } from './components/ingestion/AddProblemModal';
 import { useProblemQueue } from './hooks/useProblemQueue';
+import { ProblemCardData } from './types/problem';
 
 export const App: React.FC = () => {
   const {
@@ -27,6 +29,7 @@ export const App: React.FC = () => {
     quickFilterCounts,
     clearFilters,
     hasActiveFilters,
+    addProblemCard,
     handleSolveWithoutHelp: solveAction,
     handleNeedHints: hintsAction,
     handleViewSolution: solutionAction
@@ -35,6 +38,7 @@ export const App: React.FC = () => {
   // Active View State: 'queue' vs 'analytics'
   const [activeView, setActiveView] = useState<'queue' | 'analytics'>('queue');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
 
   // Timestamp trigger passed down to active card for keyboard shortcuts
   const [keyboardTrigger, setKeyboardTrigger] = useState<{
@@ -50,7 +54,7 @@ export const App: React.FC = () => {
     }, 3200);
   };
 
-  // Global keyboard shortcuts including chorded G then A / G then Q navigation
+  // Global keyboard shortcuts including chorded G then A / G then Q navigation & N shortcut for Add Problem Modal
   useEffect(() => {
     let isGActive = false;
     let gTimer: ReturnType<typeof setTimeout> | null = null;
@@ -61,11 +65,19 @@ export const App: React.FC = () => {
       const isInput =
         target.tagName === 'INPUT' ||
         target.tagName === 'TEXTAREA' ||
+        target.tagName === 'SELECT' ||
         target.isContentEditable;
 
       if (isInput) return;
 
       const key = e.key.toLowerCase();
+
+      // Keyboard Shortcut 'N' -> Open Add Problem Card Modal
+      if (key === 'n') {
+        e.preventDefault();
+        setIsAddModalOpen(true);
+        return;
+      }
 
       // Check for chord start key: 'g'
       if (key === 'g') {
@@ -145,7 +157,14 @@ export const App: React.FC = () => {
     showToast(`</> Solution Breakdown opened for ${card?.problemNumber || card?.number || 'Card'}. Attempt status set to Code Viewed.`);
   };
 
+  // Handler: Add New Problem Card
+  const handleAddProblem = (newCard: ProblemCardData) => {
+    addProblemCard(newCard);
+    showToast(`✨ Added new recall card ${newCard.problemNumber}: ${newCard.title}!`);
+  };
+
   const dueTodayCount = quickFilterCounts.find((q) => q.id === 'DUE_TODAY')?.count || 0;
+  const existingPatternList = patternCounts.map((p) => p.name).filter((n) => n !== 'ALL');
 
   return (
     <div className="min-h-screen bg-[#211832] text-white flex flex-col justify-between font-sans selection:bg-[#F25912] selection:text-white">
@@ -159,6 +178,7 @@ export const App: React.FC = () => {
         dueTodayCount={dueTodayCount}
         currentStreak={14}
         onSyncComplete={() => showToast('LeetCode submissions synchronized successfully!')}
+        onOpenAddModal={() => setIsAddModalOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -182,6 +202,7 @@ export const App: React.FC = () => {
               filteredCount={filteredCards.length}
               dueTodayCount={dueTodayCount}
               retentionRate={94.8}
+              onOpenAddModal={() => setIsAddModalOpen(true)}
             />
 
             {/* Search Bar, Quick Filters & Sort Controls */}
@@ -230,9 +251,18 @@ export const App: React.FC = () => {
         )}
       </main>
 
+      {/* Phase 5 Problem Ingestion & Custom Card Creator Modal */}
+      <AddProblemModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onAddProblem={handleAddProblem}
+        existingPatterns={existingPatternList}
+      />
+
       {/* Bottom Status & Keycap Bar */}
       <StatusBar />
     </div>
   );
 };
+
 

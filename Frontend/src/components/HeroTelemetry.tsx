@@ -1,17 +1,20 @@
 import React from 'react';
+import { Plus } from 'lucide-react';
 
 interface HeroTelemetryProps {
   totalCards?: number;
   filteredCount?: number;
   dueTodayCount?: number;
   retentionRate?: number;
+  onOpenAddModal?: () => void;
 }
 
 export const HeroTelemetry: React.FC<HeroTelemetryProps> = ({
   totalCards = 8,
   filteredCount,
   dueTodayCount = 3,
-  retentionRate = 94.8
+  retentionRate = 94.8,
+  onOpenAddModal
 }) => {
   const displayCount = filteredCount !== undefined ? filteredCount : totalCards;
 
@@ -26,24 +29,38 @@ export const HeroTelemetry: React.FC<HeroTelemetryProps> = ({
         </p>
       </div>
 
-      <div className="font-mono text-[13px] text-white bg-[#2C1F45]/60 border border-[#5C3E94] px-3.5 py-2 rounded-md flex items-center gap-2 self-start md:self-auto shadow-md">
-        <span className="inline-block w-2 h-2 rounded-full bg-[#22C55E] animate-pulse"></span>
-        <span>
-          Retention Rate: <strong className="text-white">{retentionRate.toFixed(1)}%</strong>
-        </span>
-        <span className="text-[#5C3E94]">•</span>
-        <span>
-          Backlog: <strong className="text-white">{displayCount} cards</strong>
-        </span>
-        {dueTodayCount > 0 && (
-          <>
-            <span className="text-[#5C3E94]">•</span>
-            <span>
-              Due: <strong className="text-[#F25912]">{dueTodayCount} today</strong>
-            </span>
-          </>
+      <div className="flex items-center gap-3 flex-wrap self-start md:self-auto">
+        <div className="font-mono text-[13px] text-white bg-[#2C1F45]/60 border border-[#5C3E94] px-3.5 py-2 rounded-md flex items-center gap-2 shadow-md">
+          <span className="inline-block w-2 h-2 rounded-full bg-[#22C55E] animate-pulse"></span>
+          <span>
+            Retention Rate: <strong className="text-white">{retentionRate.toFixed(1)}%</strong>
+          </span>
+          <span className="text-[#5C3E94]">•</span>
+          <span>
+            Backlog: <strong className="text-white">{displayCount} cards</strong>
+          </span>
+          {dueTodayCount > 0 && (
+            <>
+              <span className="text-[#5C3E94]">•</span>
+              <span>
+                Due: <strong className="text-[#F25912]">{dueTodayCount} today</strong>
+              </span>
+            </>
+          )}
+        </div>
+
+        {onOpenAddModal && (
+          <button
+            onClick={onOpenAddModal}
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-[#4F3B78] hover:bg-[#927FBF] text-white hover:text-[#363B4E] border border-[#927FBF] rounded-md font-mono text-xs font-bold transition-all shadow-md"
+            title="Create Custom Problem Card (Shortcut: N)"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>+ New Card</span>
+          </button>
         )}
       </div>
     </section>
   );
 };
+
