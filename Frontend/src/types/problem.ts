@@ -74,3 +74,32 @@ export interface ProblemCardData {
   hints: StructuredHint[];
   codeSolution: CodeSolution;
 }
+
+export type Problem = ProblemCardData;
+
+export type RecallRating = 'SOLVED_WITHOUT_HELP' | 'NEEDED_HINTS' | 'CODE_VIEWED';
+
+export interface ReviewLogEntry {
+  id: string;
+  problemId: string | number;
+  rating: RecallRating;
+  date: string; // ISO format string
+  oldEF: number;
+  newEF: number;
+  oldInterval?: number;
+  newInterval?: number;
+}
+
+export interface UserSettings {
+  defaultCodeLanguage: SupportedLanguage;
+  dailyTarget: number;
+  shortcutsEnabled: boolean;
+}
+
+export interface DeckExportPayload {
+  version: string;
+  exportedAt: string;
+  problems: Problem[];
+  reviewLogs: ReviewLogEntry[];
+  userSettings?: UserSettings;
+}

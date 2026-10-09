@@ -948,5 +948,260 @@ export const INITIAL_CARDS: ProblemCardData[] = [
       ],
       explanation: 'Optimal linear single-pass algorithm.'
     }
+  },
+  {
+    id: 'card-9',
+    problemNumber: '#146',
+    number: '#146',
+    title: 'LRU Cache',
+    patterns: ['Design', 'Hash Table', 'Doubly-Linked List'],
+    pattern: 'Design',
+    patternId: 'design',
+    leetcodeUrl: 'https://leetcode.com/problems/lru-cache/',
+    difficulty: 'Medium',
+    sm2: {
+      intervalDays: 1,
+      easinessFactor: 2.4,
+      nextReviewDate: '2026-10-06',
+      repetitionCount: 1,
+      lastAttemptResult: 'NEEDED_HINTS'
+    },
+    isDueToday: true,
+    isOverdue: false,
+    isMastered: false,
+    dueStatus: 'Due Today',
+    lastHistory: 'Last: Needed Hints',
+    lastAttemptType: 'needed_hints',
+    sm2Interval: '1 day',
+    sm2Ef: '2.4',
+    hints: [
+      {
+        step: 1,
+        category: 'Pattern Hook',
+        title: 'Hash Map + Doubly-Linked List Synergy',
+        content: 'To achieve strict O(1) average time for both get and put operations, combine a hash map for key-to-node lookups with a doubly linked list (DLL) to handle instant O(1) node detachment and head insertion.'
+      },
+      {
+        step: 2,
+        category: 'Invariant State',
+        title: 'Dummy Head and Tail Sentinels',
+        content: 'Maintain pseudo head and tail sentinel nodes. The most recently accessed node is always placed immediately after head, while the least recently used node is always at tail.prev for instant eviction.'
+      },
+      {
+        step: 3,
+        category: 'Edge Case Warning',
+        title: 'In-Place Key Update vs Eviction',
+        content: 'When calling put with an existing key, update the value and move the node to the front without evicting or creating an extra node. Only evict tail.prev when capacity is strictly exceeded on fresh key insertions.'
+      }
+    ],
+    codeSolution: {
+      language: 'Python',
+      timeComplexity: 'O(1) for both get and put',
+      spaceComplexity: 'O(capacity)',
+      dryRun: {
+        input: 'lru = LRUCache(2); lru.put(1, 1); lru.put(2, 2); lru.get(1); lru.put(3, 3)',
+        expectedOutput: 'lru.get(2) returns -1 (evicted), lru.get(1) returns 1'
+      },
+      codeLines: [
+        'class Node:',
+        '    def __init__(self, key=0, val=0):',
+        '        self.key, self.val = key, val',
+        '        self.prev = self.next = None',
+        '',
+        'class LRUCache:',
+        '    def __init__(self, capacity: int):',
+        '        self.cap = capacity',
+        '        self.cache = {}',
+        '        self.head, self.tail = Node(), Node()',
+        '        self.head.next, self.tail.prev = self.tail, self.head',
+        '',
+        '    def _remove(self, node: Node):',
+        '        node.prev.next = node.next',
+        '        node.next.prev = node.prev',
+        '',
+        '    def _insert(self, node: Node):',
+        '        node.next = self.head.next',
+        '        node.prev = self.head',
+        '        self.head.next.prev = node',
+        '        self.head.next = node',
+        '',
+        '    def get(self, key: int) -> int:',
+        '        if key in self.cache:',
+        '            node = self.cache[key]',
+        '            self._remove(node)',
+        '            self._insert(node)',
+        '            return node.val',
+        '        return -1',
+        '',
+        '    def put(self, key: int, value: int) -> None:',
+        '        if key in self.cache:',
+        '            self._remove(self.cache[key])',
+        '        node = Node(key, value)',
+        '        self.cache[key] = node',
+        '        self._insert(node)',
+        '        if len(self.cache) > self.cap:',
+        '            lru = self.tail.prev',
+        '            self._remove(lru)',
+        '            del self.cache[lru.key]'
+      ],
+      lineAnnotations: [
+        {
+          line: 9,
+          title: 'Map and Sentinel Initialization',
+          explanation: 'Initializes hash table mapping and links dummy head directly to dummy tail.',
+          type: 'init'
+        },
+        {
+          line: 13,
+          title: 'O(1) Detach Node Invariant',
+          explanation: 'Splices node out of doubly linked list by reconnecting adjacent neighbor pointers.',
+          type: 'state'
+        },
+        {
+          line: 17,
+          title: 'O(1) Most-Recently-Used Promotion',
+          explanation: 'Inserts node immediately after dummy head sentinel to mark as most recently accessed.',
+          type: 'state'
+        },
+        {
+          line: 23,
+          title: 'O(1) Cache Hit & Promotion',
+          explanation: 'Returns value if found in map and promotes node to head of list.',
+          type: 'return'
+        },
+        {
+          line: 37,
+          title: 'O(1) LRU Tail Eviction',
+          explanation: 'Evicts tail.prev when capacity exceeded and deletes key from dictionary.',
+          type: 'condition'
+        }
+      ],
+      explanation: 'Combines Python dictionary for O(1) key lookups with doubly linked list for O(1) eviction.',
+      languages: {
+        Python: {
+          language: 'Python',
+          codeLines: [
+            'class Node:',
+            '    def __init__(self, key=0, val=0):',
+            '        self.key, self.val = key, val',
+            '        self.prev = self.next = None',
+            '',
+            'class LRUCache:',
+            '    def __init__(self, capacity: int):',
+            '        self.cap = capacity',
+            '        self.cache = {}',
+            '        self.head, self.tail = Node(), Node()',
+            '        self.head.next, self.tail.prev = self.tail, self.head',
+            '',
+            '    def _remove(self, node: Node):',
+            '        node.prev.next = node.next',
+            '        node.next.prev = node.prev',
+            '',
+            '    def _insert(self, node: Node):',
+            '        node.next = self.head.next',
+            '        node.prev = self.head',
+            '        self.head.next.prev = node',
+            '        self.head.next = node',
+            '',
+            '    def get(self, key: int) -> int:',
+            '        if key in self.cache:',
+            '            node = self.cache[key]',
+            '            self._remove(node)',
+            '            self._insert(node)',
+            '            return node.val',
+            '        return -1',
+            '',
+            '    def put(self, key: int, value: int) -> None:',
+            '        if key in self.cache:',
+            '            self._remove(self.cache[key])',
+            '        node = Node(key, value)',
+            '        self.cache[key] = node',
+            '        self._insert(node)',
+            '        if len(self.cache) > self.cap:',
+            '            lru = self.tail.prev',
+            '            self._remove(lru)',
+            '            del self.cache[lru.key]'
+          ],
+          lineAnnotations: [
+            {
+              line: 9,
+              title: 'Map and Sentinel Initialization',
+              explanation: 'Initializes hash table mapping and links dummy head directly to dummy tail.',
+              type: 'init'
+            },
+            {
+              line: 13,
+              title: 'O(1) Detach Node Invariant',
+              explanation: 'Splices node out of doubly linked list by reconnecting adjacent neighbor pointers.',
+              type: 'state'
+            },
+            {
+              line: 17,
+              title: 'O(1) Most-Recently-Used Promotion',
+              explanation: 'Inserts node immediately after dummy head sentinel to mark as most recently accessed.',
+              type: 'state'
+            },
+            {
+              line: 23,
+              title: 'O(1) Cache Hit & Promotion',
+              explanation: 'Returns value if found in map and promotes node to head of list.',
+              type: 'return'
+            },
+            {
+              line: 37,
+              title: 'O(1) LRU Tail Eviction',
+              explanation: 'Evicts tail.prev when capacity exceeded and deletes key from dictionary.',
+              type: 'condition'
+            }
+          ]
+        },
+        JavaScript: {
+          language: 'JavaScript',
+          codeLines: [
+            'class LRUCache {',
+            '  constructor(capacity) {',
+            '    this.capacity = capacity;',
+            '    this.map = new Map();',
+            '  }',
+            '  get(key) {',
+            '    if (!this.map.has(key)) return -1;',
+            '    const val = this.map.get(key);',
+            '    this.map.delete(key);',
+            '    this.map.set(key, val);',
+            '    return val;',
+            '  }',
+            '  put(key, value) {',
+            '    if (this.map.has(key)) this.map.delete(key);',
+            '    this.map.set(key, value);',
+            '    if (this.map.size > this.capacity) {',
+            '      const oldestKey = this.map.keys().next().value;',
+            '      this.map.delete(oldestKey);',
+            '    }',
+            '  }',
+            '}'
+          ],
+          lineAnnotations: [
+            {
+              line: 3,
+              title: 'Map Ordered Cache Init',
+              explanation: 'ES6 Map preserves insertion order, allowing LRU tracking via delete and re-insert.',
+              type: 'init'
+            },
+            {
+              line: 8,
+              title: 'Re-insert MRU Key',
+              explanation: 'Refreshing accessed entry to the end of insertion order.',
+              type: 'state'
+            },
+            {
+              line: 17,
+              title: 'Evict Oldest Iterator Entry',
+              explanation: 'First element in Map iterator corresponds to least recently accessed item.',
+              type: 'condition'
+            }
+          ]
+        }
+      }
+    }
   }
 ];

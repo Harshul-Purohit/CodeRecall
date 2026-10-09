@@ -29,10 +29,35 @@ export default {
           hard: '#EF4444',
         },
         subtext: '#B4A7D6',
+        slateLav: {
+          base: '#363B4E',
+          surface: '#4F3B78',
+          border: '#927FBF',
+          accent: '#C4BBF0',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
         mono: ['"JetBrains Mono"', '"Fira Code"', 'monospace'],
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.2s ease-out forwards',
+        'slide-in': 'slideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'scale-in': 'scaleIn 0.2s ease-out forwards',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideIn: {
+          '0%': { opacity: '0', transform: 'translateY(-8px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        scaleIn: {
+          '0%': { opacity: '0', transform: 'scale(0.96)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
       },
     },
   },
