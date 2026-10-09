@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { RefreshCw, CheckCircle2, Layers, BarChart3, Flame, Plus } from 'lucide-react';
 import { Logo } from './Logo';
+import { BackupDropdown } from './BackupDropdown';
 
 interface NavbarProps {
   activeView?: 'queue' | 'analytics';
@@ -83,7 +84,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Right Utility Badges & Sync Action */}
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-2.5 flex-wrap">
         {syncStatus && (
           <div className="hidden xl:flex items-center gap-1.5 px-3 py-1 bg-[#1A1228] border border-[#5C3E94] text-xs text-[#B4A7D6] rounded-md animate-fade-in">
             <CheckCircle2 className="w-3.5 h-3.5 text-[#22C55E]" />
@@ -116,6 +117,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             </kbd>
           </button>
         )}
+
+        {/* Backup / Export / Import Dropdown */}
+        <BackupDropdown />
 
         {/* Action Button: Sync LeetCode */}
         <button
